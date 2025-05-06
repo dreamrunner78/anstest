@@ -1,0 +1,63 @@
+Apache NiFi provides basic built-in alerting and reporting features, and it can also be integrated with external monitoring and alerting systems to support full production-grade observability.
+✅ Built-in Alerting Features
+1. Bulletins
+
+    NiFi shows bulletins (red/yellow icons) on processors when errors occur.
+
+    Bulletins are visible in the UI and show the last N errors per processor.
+
+    Useful for manual monitoring and debugging.
+
+    ❗Example: A PutS3Object processor fails due to a permissions error → a red bulletin appears with the error message.
+
+✅ Built-in Reporting Tasks
+
+NiFi includes ReportingTasks that send metrics to external systems.
+Common Reporting Tasks:
+
+    SiteToSiteStatusReportingTask – sends status via NiFi's internal protocol.
+
+    PrometheusReportingTask – exposes metrics at /metrics for Prometheus scraping.
+
+    DataDogReportingTask – pushes metrics to DataDog.
+
+    LogStatusReportingTask – logs flow status to NiFi’s logs periodically.
+
+    ✅ You can configure reporting intervals, formats, and filters for these tasks.
+
+✅ External Alerting Integration (Recommended for Production)
+
+NiFi doesn’t have a full alerting system by default but works well with external tools:
+1. Prometheus + Alertmanager + Grafana
+
+    Use PrometheusReportingTask.
+
+    Create custom alerts (e.g., high queue size, processor failures).
+
+    Build dashboards with Grafana.
+
+2. ELK / OpenSearch
+
+    Send logs to ELK via Filebeat or Logstash.
+
+    Alert on specific log patterns (e.g., ERROR in logs).
+
+3. Email or Slack Alerts
+
+    Use processors like PutEmail, InvokeHTTP, or ExecuteScript to send alerts when flow conditions are met (e.g., on route to failure).
+
+    🧠 Example: Route FlowFiles that failed processing to PutEmail to alert ops team.
+
+🛠 Example Custom Alert Flow
+
+[Processor A] ──failure──> [PutEmail or InvokeHTTP (Slack Webhook)]
+
+You can conditionally send alerts when errors happen, based on:
+
+    content
+
+    attributes
+
+    number of failures
+
+    rate of error over time
