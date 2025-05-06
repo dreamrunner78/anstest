@@ -1,0 +1,93 @@
+Apache NiFi is designed to handle varying loads with adaptive queuing, backpressure, and horizontal scalability. Its performance depends on configuration, system resources, and flow complexity. Here's how NiFi behaves under load, what benchmarks exist, and how to test it yourself:
+⚙️ How NiFi Performs Under Varying Loads
+✅ 1. Backpressure & Load Shedding
+
+    NiFi does not drop data by default.
+
+    When a processor or connection becomes overwhelmed:
+
+        FlowFiles are queued (in memory or on disk).
+
+        Upstream processors are paused (backpressure).
+
+    You can configure queues to optimize behavior under load.
+
+✅ 2. Dynamic Scaling in Clusters
+
+    You can scale NiFi horizontally by adding nodes to the cluster.
+
+    Flows are automatically distributed.
+
+    With Kubernetes, you can auto-scale NiFi pods based on CPU/memory or custom metrics.
+
+✅ 3. Resource-Aware Scheduling
+
+    Each processor runs on a configurable number of threads.
+
+    NiFi ensures that resources are not overcommitted.
+
+    You can tune concurrency per processor.
+
+✅ 4. Repository Offloading to Disk
+
+    NiFi stores content, FlowFile metadata, and provenance on disk.
+
+    Load is spread across memory and disk to prevent crashes during bursts.
+
+📊 Performance Benchmarks (General Reference)
+
+While official benchmarks vary, here’s what has been observed in real-world tests (from community and vendors like Cloudera):
+Setup	Throughput (Approx.)
+1-node, 4-core, 8GB RAM	~10–30 MB/s per processor
+3-node cluster, SSD disks	200k–300k FlowFiles/min
+10-node NiFi cluster	2M+ FlowFiles/min possible
+
+    💡 Performance heavily depends on disk speed, FlowFile size, number of processors, and repo configuration.
+
+🧪 Tools to Test or Mock Load in NiFi
+1. GenerateFlowFile
+
+    Built-in NiFi processor to create mock data.
+
+    Use it to simulate high-frequency or large-payload flows.
+
+GenerateFlowFile → LogAttribute or PutFile
+
+You can configure:
+
+    Size of each file
+
+    Number of FlowFiles/sec
+
+2. JMeter
+
+    Simulate REST or HTTP input load against NiFi’s ListenHTTP or HandleHttpRequest.
+
+3. Custom Scripts (Python, Bash, etc.)
+
+    Send mock files or HTTP POSTs in parallel using curl or requests.
+
+4. Gatling, Locust (for REST load)
+
+    Good for high concurrency tests when using NiFi to receive API payloads.
+
+5. NiFi Performance Testing Toolkit (Community)
+
+    Some open-source repos offer test templates and monitoring setups for NiFi.
+
+    Combine with Prometheus + Grafana for monitoring under load.
+
+🔧 Recommended Metrics to Monitor
+Metric	Use
+JVM Heap, GC	Memory pressure
+FlowFile Queue Size	Detect backpressure
+Repository Disk Utilization	Prevent I/O bottlenecks
+FlowFiles in / out per second	Throughput measurement
+Bulletin Errors	Error detection
+✅ Summary
+Feature	Supported in NiFi?
+Adaptive handling of load	✅
+Horizontal scaling	✅
+Built-in mock data generation	✅ (GenerateFlowFile)
+Integration with load testers	✅ (JMeter, Locust)
+Official benchmarks	❌ (no fixed numbers, case-specific)
