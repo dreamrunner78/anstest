@@ -1,0 +1,49 @@
+How NiFi Handles REST API Calls for Data Ingestion
+
+NiFi can ingest data via REST API calls primarily using these processors:
+
+    ListenHTTP – acts as an HTTP server endpoint that receives data (e.g., POST requests).
+
+    HandleHttpRequest + HandleHttpResponse – used together to build a custom HTTP REST service flow.
+
+    InvokeHTTP – to call external REST APIs, not receive.
+
+When using ListenHTTP or HandleHttpRequest, NiFi receives HTTP requests and turns the incoming payload into a FlowFile for downstream processing.
+📏 Is There a Size Limit on Ingested Data?
+❌ No hardcoded limit in NiFi itself, but…
+
+    Limits depend on:
+
+        Available JVM memory.
+
+        nifi.properties settings (especially content and flowfile repository size).
+
+        Web server configuration (e.g., Jetty thread pool size).
+
+        Kubernetes or ingress controller limits (if deployed behind one).
+
+    For very large payloads (e.g., 100MB+), it is recommended to:
+
+        Use streaming-friendly processors.
+
+        Avoid buffering everything in memory (e.g., don’t decode huge JSONs inline).
+
+📦 Does NiFi Support Chunked Transfer Encoding?
+
+Yes, NiFi supports chunked transfer encoding (used in streaming large data over HTTP), but with some notes:
+
+    ListenHTTP and HandleHttpRequest can receive chunked requests.
+
+    NiFi will buffer the complete request into a FlowFile before processing — it does not process data truly in a streaming fashion unless you explicitly design for that using InputStream in custom processors or via scripting.
+
+    🧠 Important: Chunked requests are fully received and stored in NiFi before processing begins. So the size of each chunk is not the issue, but the total size may cause performance or memory pressure.
+
+✅ Recommended Practices for Large REST Payloads
+
+    Use ListenHTTP behind an ingress or API Gateway that handles authentication and limits.
+
+    Increase NiFi's JVM heap and repository sizes for handling large uploads.
+
+    Store large files externally (e.g., in S3, HDFS) and send only metadata via REST — NiFi can fetch the file later (e.g., using FetchS3Object).
+
+    For streaming ingestion, use Kafka, MQTT, or WebSockets if applicable — these scale better for high-volume or continuous flows.
