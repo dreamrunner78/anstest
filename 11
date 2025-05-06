@@ -1,0 +1,15 @@
+To dynamically manage configuration files without restarting NiFi pods, you can:
+
+    Create a shared volume with ReadWriteMany (RWX) access (e.g., NFS, CephFS, or PVC backed by RWX storage).
+
+    Mount this volume in both:
+
+        The NiFi pods (as read-only or read-write depending on your needs).
+
+        Ephemeral pods (dedicated to managing configuration, with read-write access).
+
+    Load ConfigMaps into the ephemeral pods, then write their contents into the shared RWX volume.
+
+    The NiFi pods will then read the configuration from the shared volume, allowing updates without restarting the pods.
+
+This approach decouples ConfigMap updates from NiFi restarts, enabling more flexible and dynamic configuration management.
