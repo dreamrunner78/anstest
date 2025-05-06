@@ -1,3 +1,6 @@
+This topic is currently being reviewed by our team in order to validate the solution and integrate it into the service offering.
+
+
 This mechanism is implemented in the data ingestion service offering to enable dynamic configuration updates via ephemeral pods, which populate a shared RWX volume consumed by NiFi, allowing configuration changes without restarting the main processing pods.
 
 To dynamically manage configuration files without restarting NiFi pods, you can:
