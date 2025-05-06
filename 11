@@ -15,3 +15,6 @@ To dynamically manage configuration files without restarting NiFi pods, you can:
     The NiFi pods will then read the configuration from the shared volume, allowing updates without restarting the pods.
 
 This approach decouples ConfigMap updates from NiFi restarts, enabling more flexible and dynamic configuration management.
+
+
+With this method, you can mount Python, Bash, or Groovy scripts in a shared volume between your ephemeral pods and the NiFi pods. For example, to deploy a new version of a Python script, you simply recreate the ConfigMap associated with your ephemeral pods, and the updated script will automatically be available in NiFi without restarting the NiFi pod. This way, in the InvokeScriptedProcessor, you can reference the path to the shared mount point that contains the Python or other scripts.
