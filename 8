@@ -1,0 +1,45 @@
+Certainly! In Apache NiFi, data provenance retention is controlled by a combination of time-based and size-based settings. These settings determine how long provenance events are stored and how much disk space is allocated for them.
+🗂️ Provenance Repository Overview
+
+The Provenance Repository stores metadata about every FlowFile event (e.g., received, routed, modified, dropped). It's crucial for auditing, debugging, and replaying data.
+🔧 Key Configuration Settings (in nifi.properties)
+Setting	Description
+nifi.provenance.repository.max.storage.time	Time-based retention — how long to keep events (e.g., 24 hours)
+nifi.provenance.repository.max.storage.size	Size-based retention — maximum total disk usage (e.g., 1 GB)
+nifi.provenance.repository.rollover.time	Frequency to roll over active provenance files (e.g., 30 sec)
+nifi.provenance.repository.rollover.size	Size threshold to trigger file rollover (e.g., 100 MB)
+nifi.provenance.repository.directory.default	Directory path where provenance data is stored
+🧠 How Retention Works
+
+NiFi retains provenance data until either of the following conditions is met:
+
+    The oldest event exceeds the max storage time (max.storage.time)
+
+    The repository exceeds the size limit (max.storage.size)
+
+    🔁 Once one of these thresholds is reached, older events are purged to stay within the configured limits.
+
+🧪 Example
+
+nifi.provenance.repository.max.storage.time=24 hours
+nifi.provenance.repository.max.storage.size=2 GB
+
+    This means NiFi will keep provenance events for up to 24 hours, or until they consume 2 GB, whichever comes first.
+
+🧰 Best Practices
+
+    Increase max.storage.size if you need longer retention (e.g., for audits).
+
+    Use fast disk (SSD) for provenance storage to avoid I/O bottlenecks.
+
+    Monitor with Prometheus or external logging if compliance requires longer historical tracking.
+
+🛠️ Viewing and Managing Provenance
+
+You can access provenance data via:
+
+    NiFi UI → "Provenance" tab.
+
+    NiFi REST API → /nifi-api/provenance
+
+    Replay functionality → Reprocess FlowFiles from past events.
