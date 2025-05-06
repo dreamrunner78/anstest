@@ -1,0 +1,15 @@
+Proposed Deployment Mechanism for NiFi Pipelines Across Environments (DEV, QA, PROD):
+
+The idea is to leverage NiFi Registry for version-controlling NiFi dataflows. A Kubernetes job will be integrated into the CI/CD pipeline to automate the promotion of pipelines between environments (e.g., from DEV to QA to PROD).
+
+This Kubernetes job will:
+
+    Use the NiFi CLI (nifi-toolkit) to interact with NiFi and NiFi Registry.
+
+    Authenticate with NiFi using mutual TLS (mTLS) to ensure secure communication.
+
+    Fetch and deploy pipelines by exporting/importing versioned flows.
+
+    Accept a comprehensive set of parameters (e.g., flow name, version, target environment, variable overrides) to provide flexibility and ease of use.
+
+This approach enables consistent, secure, and automated deployment of NiFi pipelines across multiple environments, reducing manual errors and improving delivery speed.
