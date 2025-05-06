@@ -1,0 +1,58 @@
+Since you are using a corporate Certificate Authority (CA), here's how you can effectively use an SSL certificate to securely call the NiFi native API:
+✅ Using an SSL Certificate to Access the NiFi API
+
+Yes, you can use your client certificate and private key to authenticate with NiFi's secured API (HTTPS with mutual TLS). Here’s what you need to know and do:
+🔐 1. Will the certificate and key be shared with you?
+
+    If your organization issues certificates through an internal CA, then:
+
+        Yes, your team (or a security/PKI team) will provision a client certificate and key pair for your use.
+
+        This typically includes:
+
+            A client certificate (e.g., client.crt)
+
+            A private key (e.g., client.key)
+
+            Optionally, the CA certificate (e.g., ca.crt)
+
+⚙️ 2. Steps to configure and use the certificate with NiFi
+✅ A. Ensure NiFi is running in HTTPS mode
+
+Check nifi.properties:
+
+nifi.web.https.port=9443
+nifi.web.https.host=<nifi-host>
+nifi.security.keystore=...
+nifi.security.truststore=...
+
+✅ B. Trust the client certificate in NiFi
+
+    The client's certificate must be signed by a CA trusted by NiFi (configured in the NiFi truststore).
+
+    You may need to import your internal CA’s public cert into NiFi’s truststore:
+
+keytool -import -trustcacerts -keystore truststore.jks -file yourCA.crt -alias your-ca
+
+✅ C. Configure client (your side) to use the cert
+
+When making API calls with tools like curl, Python, or Postman:
+
+curl -X GET https://<nifi-host>:9443/nifi-api/flow/status \
+  --cert client.crt \
+  --key client.key \
+  --cacert ca.crt
+
+    ✅ The --cert and --key authenticate you as a client; --cacert ensures the server is trusted.
+
+✅ D. User Identity Mapping
+
+Ensure that your certificate’s subject DN or SAN matches a user identity in NiFi's authorizers.xml.
+You’ll need to define policies for this identity to allow access to the API.
+🧠 Example Use Case
+
+If your client certificate has a subject like:
+
+CN=john.doe@yourdomain.com, OU=IT, O=YourOrg, C=FR
+
+Then NiFi must recognize this DN and assign it appropriate access roles (e.g., via authorizers.xml and policies in the UI).
