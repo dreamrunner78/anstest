@@ -1,0 +1,35 @@
+Yes, Apache NiFi supports the ingestion and handling of encrypted data, but it does not perform encryption or decryption automatically unless you configure it to do so explicitly using processors.
+🔐 Where encryption/decryption happens in NiFi:
+1. During Data Ingestion (Input)
+
+NiFi can ingest encrypted data from external sources (e.g., S3, Kafka, HTTPS, etc.), but:
+
+    You must use a processor to decrypt it if needed (e.g., DecryptContent, custom script, or invoke an external service).
+
+    NiFi does not automatically decrypt incoming data.
+
+2. During Data Routing/Processing
+
+You can use:
+
+    EncryptContent and DecryptContent processors for AES, PGP, etc.
+
+    ExecuteScript or InvokeScriptedProcessor to handle custom encryption/decryption logic.
+
+    External services via InvokeHTTP or InvokeAWSLambda to offload the encryption/decryption process.
+
+3. At Rest (on disk)
+
+    NiFi’s content repository, provenance repository, and flowfile repository can be protected using disk-level encryption (outside of NiFi) or encryption at rest features from your storage system (like EBS encrypted volumes in AWS).
+
+    NiFi itself does not encrypt flow files on disk unless you've configured encryption at the processor level.
+
+4. During Transmission
+
+    NiFi supports TLS/SSL for secure data transmission between:
+
+        NiFi nodes (cluster)
+
+        NiFi and external systems (e.g., HTTPS, Secure Site-to-Site, Kafka with SSL)
+
+        NiFi Registry
