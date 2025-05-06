@@ -1,0 +1,48 @@
+import requests
+import time
+import random
+import threading
+import string
+
+# === Configuration ===
+NIFI_URL = "http://localhost:8080/nifi-api/data-transfer-endpoint"  # Replace with your endpoint
+TEST_DURATION_SECONDS = 60          # Total duration of the test
+REQUESTS_PER_SECOND = 5             # Frequency of HTTP requests
+MIN_PAYLOAD_SIZE_KB = 10            # Minimum payload size (KB)
+MAX_PAYLOAD_SIZE_KB = 1024          # Maximum payload size (1 MB = 1024 KB)
+CONCURRENT_THREADS = 5              # Number of concurrent threads
+
+def generate_payload(size_kb):
+    """Generate a random string payload of given size in KB."""
+    size_bytes = size_kb * 1024
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=size_bytes)).encode('utf-8')
+
+def send_request():
+    size_kb = random.randint(MIN_PAYLOAD_SIZE_KB, MAX_PAYLOAD_SIZE_KB)
+    payload = generate_payload(size_kb)
+    try:
+        response = requests.post(NIFI_URL, data=payload, timeout=10)
+        print(f"Sent {size_kb} KB → Status: {response.status_code}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+def worker():
+    interval = 1.0 / REQUESTS_PER_SECOND
+    end_time = time.time() + TEST_DURATION_SECONDS
+    while time.time() < end_time:
+        send_request()
+        time.sleep(interval)
+
+def run_load_test():
+    threads = []
+    for _ in range(CONCURRENT_THREADS):
+        t = threading.Thread(target=worker)
+        t.start()
+        threads.append(t)
+
+    for t in threads:
+        t.join()
+
+if __name__ == "__main__":
+    print(f"Starting load test for {TEST_DURATION_SECONDS} seconds with {REQUESTS_PER_SECOND} req/s per thread...")
+    run_load_test()
