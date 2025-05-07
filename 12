@@ -1,3 +1,7 @@
+This Dynatrace dashboard provides a comprehensive overview of Kubernetes resources, displaying real-time metrics for pods, persistent volumes, and workloads, all grouped and filtered by namespace, enabling detailed monitoring and analysis of resource usage, performance, and health across the entire cluster; in addition, configurable thresholds can be defined to trigger alerts when specific conditions are met, ensuring proactive incident detection and response.
+
+
+
 import requests
 import time
 import random
